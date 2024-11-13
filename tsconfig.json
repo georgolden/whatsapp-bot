@@ -1,18 +1,35 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
+    // Module Settings
+    "module": "NodeNext",        // or "NodeNext" for latest Node.js features
+    "moduleResolution": "NodeNext",  // or "NodeNext"
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    // ESM Support
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Strict Type Checking
+    "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+
+    // Output Settings
+    "outDir": "./dist",
+    "rootDir": "./src",
+    
+    // Path Aliases
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
+
+    // Additional Modern Settings
+    "verbatimModuleSyntax": true,  // Enforces explicit imports for types
     "resolveJsonModule": true,
-    "sourceMap": true,
-    "declaration": true
+    "isolatedModules": true,
+    "noEmit": true    // Since we're using tsx for running/building
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
