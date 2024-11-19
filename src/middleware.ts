@@ -1,4 +1,4 @@
-import type { MessageMiddleware } from './types';
+import type { MessageMiddleware } from './types.js';
 
 export const logMessage: MessageMiddleware = async (message: string) => {
   console.log('Processing message:', message);

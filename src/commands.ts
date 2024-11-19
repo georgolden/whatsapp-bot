@@ -1,4 +1,4 @@
-import type { Result } from './types';
+import type { Result } from './types.js';
 
 const commands: Record<string, () => Promise<Result>> = {
   help: async () => ({

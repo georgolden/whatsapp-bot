@@ -1,5 +1,5 @@
-import { logMessage, validateMessage, measureTime, createMiddlewareChain } from './middleware';
-import { processMessage } from './commands';
+import { logMessage, validateMessage, measureTime, createMiddlewareChain } from './middleware.js';
+import { processMessage } from './commands.js';
 
 const middleware = createMiddlewareChain([logMessage, validateMessage, measureTime]);
 

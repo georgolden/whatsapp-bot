@@ -1,5 +1,5 @@
-import { WhatsAppClient } from './adapters/whatsapp.adapter';
-import { handleMessage } from './messageHandler';
+import { WhatsAppClient } from './adapters/whatsapp.adapter.js';
+import { handleMessage } from './messageHandler.js';
 
 // Error handling
 process.on('unhandledRejection', (error: Error) => {
