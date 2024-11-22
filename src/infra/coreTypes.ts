@@ -7,5 +7,10 @@ export interface Event<T = unknown> {
   
 export interface EventStore {
   writeEvent(event: Event): Promise<string>;
-  processEvents(handler: (event: Event) => Promise<void>): Promise<any>;
+  processEvents(streamName: string, handler: (event: Event) => Promise<any>): Promise<any>;
+}
+
+export interface Client {
+  on<T = any>(event: string | symbol, handler: (data: T) => void): void;
+  emit<T = any>(event: string | symbol, data: T): boolean;
 }

@@ -13,7 +13,6 @@ export class RedisEventStore implements EventStore {
   readonly consumerName: string;
 
   constructor(
-    readonly streamName: string,
     readonly serviceName: string,
     redisUrl: string = 'redis://localhost:6379'
   ) {
@@ -27,10 +26,10 @@ export class RedisEventStore implements EventStore {
     }
   }
 
-  async ensureConsumerGroup(): Promise<void> {
+  async ensureConsumerGroup(streamName: string): Promise<void> {
     await this.ensureConnection();
     try {
-      await this.redis.xGroupCreate(this.streamName, this.serviceName, '0', {
+      await this.redis.xGroupCreate(streamName, this.serviceName, '0', {
         MKSTREAM: true
       });
     } catch (error) {
@@ -52,10 +51,10 @@ export class RedisEventStore implements EventStore {
     return await this.redis.xAdd(event.name, '*', eventData);
   }
 
-  async processEvents(handler: (event: Event) => Promise<void>): Promise<StreamControl> {
-    await this.ensureConsumerGroup();
+  async processEvents(streamName: string, handler: (event: Event) => Promise<any>): Promise<StreamControl> {
+    await this.ensureConsumerGroup(streamName);
     this.running = true;
-    const readPromise = this.startReading(handler);
+    const readPromise = this.startReading(streamName, handler);
     return {
       stream: readPromise,
       isRunning: () => this.running,
@@ -66,12 +65,12 @@ export class RedisEventStore implements EventStore {
     };
   }
 
-  private async startReading(handler: (event: Event) => Promise<void>): Promise<void> {
+  private async startReading(streamName: string, handler: (event: Event) => Promise<void>): Promise<void> {
     while (this.running) {
       const streams = await this.redis.xReadGroup(
         this.serviceName,
         this.consumerName,
-        { key: this.streamName, id: '>' },
+        { key: streamName, id: '>' },
         { COUNT: 1 }
       );
 
@@ -93,7 +92,7 @@ export class RedisEventStore implements EventStore {
         };
 
         await handler(event);
-        await this.redis.xAck(this.streamName, this.serviceName, id);
+        await this.redis.xAck(streamName, this.serviceName, id);
       }
     }
   }

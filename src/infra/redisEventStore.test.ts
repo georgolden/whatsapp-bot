@@ -5,10 +5,10 @@ import type { Event } from './coreTypes.js';
 
 test('RedisEventStore Integration Tests', async (t) => {
   let eventStore: RedisEventStore;
+  const streamName = 'test_stream';
 
   t.before(async () => {
     eventStore = new RedisEventStore(
-      'test_stream',
       'test_service',
       'redis://0.0.0.0:6379'
     );
@@ -26,7 +26,7 @@ test('RedisEventStore Integration Tests', async (t) => {
       resolveProcessing = resolve;
     });
     // Get the read promise
-    const { stop } = await eventStore.processEvents(async (event) => {
+    const { stop } = await eventStore.processEvents(streamName, async (event) => {
       processed.push(event);
       resolveProcessing();
     });
@@ -51,7 +51,7 @@ test('RedisEventStore Integration Tests', async (t) => {
       resolveProcessing = resolve;
     });
 
-    const { stream, stop } = await eventStore.processEvents(async (event) => {
+    const { stream, stop } = await eventStore.processEvents(streamName, async (event) => {
       processed.push(event);
       if (processed.length === totalEvents) {
         resolveProcessing();
@@ -78,7 +78,7 @@ await t.test('should handle handler errors', async () => {
     data: { test: 'data' }
   });
 
-  const { stream, stop } = await eventStore.processEvents(async () => {
+  const { stream, stop } = await eventStore.processEvents(streamName, async () => {
     throw new Error('Handler failed');
   });
 
