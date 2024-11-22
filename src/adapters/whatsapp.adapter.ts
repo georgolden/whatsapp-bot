@@ -27,8 +27,8 @@ export class WhatsAppClient extends EventEmitter {
     this.setupEventListeners();
     this.on('response', (event) => {
       if (!!event.chats) {
-        for (const { chatId } of event.chats) {
-          this.client.sendMessage(chatId, event.data);
+        for (const chatId of event.chats) {
+          this.client.sendMessage(chatId, event.data).catch(console.error);
         } 
       }
     });

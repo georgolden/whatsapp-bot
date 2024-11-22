@@ -32,6 +32,7 @@ test('RedisEventStore Integration Tests', async (t) => {
     });
     const testEvent: Event = {
       name: 'test_stream',
+      meta: null,
       data: { title: 'Test Title', content: 'Test Content' }
     };
 
@@ -62,6 +63,7 @@ test('RedisEventStore Integration Tests', async (t) => {
     for (let i = 0; i < totalEvents; i++) {
       await eventStore.writeEvent({
         name: 'test_stream',
+        meta: null,
         data: { count: i }
       });
     }
@@ -75,6 +77,7 @@ test('RedisEventStore Integration Tests', async (t) => {
 await t.test('should handle handler errors', async () => {
   await eventStore.writeEvent({
     name: 'test_stream',
+    meta: null,
     data: { test: 'data' }
   });
 

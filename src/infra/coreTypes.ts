@@ -2,6 +2,7 @@ export interface Event<T = unknown> {
     id?: string;
     name: string;
     data: T;
+    meta: any;
     timestamp?: string;
   }
   

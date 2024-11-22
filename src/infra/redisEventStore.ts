@@ -45,6 +45,7 @@ export class RedisEventStore implements EventStore {
     const eventData = {
       name: event.name,
       data: JSON.stringify(event.data),
+      meta: JSON.stringify(event.meta),
       timestamp: event.timestamp || new Date().toISOString()
     };
 
@@ -88,6 +89,7 @@ export class RedisEventStore implements EventStore {
           id,
           name: message.name as string,
           data: JSON.parse(message.data as string),
+          meta: JSON.parse(message.meta as string),
           timestamp: message.timestamp as string
         };
 
