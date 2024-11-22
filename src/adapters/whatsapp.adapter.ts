@@ -1,11 +1,13 @@
+import EventEmitter from 'node:events';
 import { Client, LocalAuth } from 'whatsapp-web.js';
 import type { Message } from 'whatsapp-web.js';
 import qrcode from 'qrcode-terminal';
 
-export class WhatsAppClient {
+export class WhatsAppClient extends EventEmitter {
   private client: Client;
 
-  constructor(private handleMessage: (message: string) => Promise<string | undefined>) {
+  constructor() {
+    super();
     this.client = new Client({
       authStrategy: new LocalAuth(),
       puppeteer: {
@@ -23,6 +25,13 @@ export class WhatsAppClient {
     });
 
     this.setupEventListeners();
+    this.on('response', (event) => {
+      if (!!event.chats) {
+        for (const { chatId } of event.chats) {
+          this.client.sendMessage(chatId, event.data);
+        } 
+      }
+    });
   }
 
   private setupEventListeners(): void {
@@ -36,10 +45,11 @@ export class WhatsAppClient {
     });
 
     this.client.on('message', async (message: Message) => {
-      const result = await this.handleMessage(message.body.toLowerCase());
-      if (result) {
-        await message.reply(result);
-      }
+      const chatMessage = {
+        chatId: message.from,
+        message: message.body
+      };
+      this.emit('request', chatMessage);
     });
 
     this.client.on('auth_failure', (err: Error) => {
