@@ -2,7 +2,7 @@
   "name": "whatsapp-bot-example",
   "version": "1.0.0",
   "main": "dist/bot.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node dist/bot.js",
     "dev": "tsx watch src/bot.ts",
@@ -18,6 +18,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
     "qrcode-terminal": "^0.12.0",
     "redis": "^4.7.0",
     "whatsapp-web.js": "^1.26.0"
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
     "@types/qrcode-terminal": "^0.12.2",
     "@types/sinon": "^17.0.3",
     "sinon": "^19.0.2",
