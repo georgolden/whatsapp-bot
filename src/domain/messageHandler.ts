@@ -16,8 +16,11 @@ export const handleMessage = async (
 ): Promise<any> => {
   try {
     const { chatId, message: url } = chatMessage;
+    console.log('Entered handler', chatMessage);
     
     if (!isValidYoutubeUrl(url)) {
+      console.log('Invalid url', url);
+      
       return { info: 'Please send a valid YouTube video URL' };
     }
 
@@ -25,17 +28,22 @@ export const handleMessage = async (
     const processed = await deps.youtubeRepository.getProcessedRequest(url);
     if (processed && processed.state === 'COMPLETED') {
         const transcription = await deps.youtubeRepository.getTranscription(url);
-        return { chats: [chatId], data: transcription?.content };
+        console.log('Transcription request completed before', url, transcription?.content.length);
+        deps.client.emit('response', { chats: [chatId], data: transcription?.content });
+        return;
     }
 
     // 2. Try to add to existing processing queue
     const existingId = await deps.youtubeRepository.addToProcessingQueue(url, chatId);
     if (existingId) {
+      console.log('Video is already requested add to waiting queue', { url, chatId });
+      
       return { info: 'Your YouTube video is being processed. You will receive the summary when it\'s ready.' };
     }
 
     // 3. Create new request and emit event
     const requestId = await deps.youtubeRepository.createNewRequest(url, chatId);
+    console.log('New request made', requestId);
     
     const event = {
       name: STREAM_NAME,
@@ -49,6 +57,8 @@ export const handleMessage = async (
     };
 
     await deps.eventStore.writeEvent(event);
+    console.log('Event written', event);
+    
     return { info: 'Your YouTube video is being processed. You will receive the summary when it\'s ready.' };
     
   } catch (error) {
