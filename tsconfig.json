@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Module Settings
-    "module": "NodeNext",        // or "NodeNext" for latest Node.js features
-    "moduleResolution": "NodeNext",  // or "NodeNext"
+    "module": "CommonJS",        // or "NodeNext" for latest Node.js features
+    "moduleResolution": "Node",  // or "NodeNext"
     "target": "ES2022",
     "lib": ["ES2022"],
 
@@ -26,10 +26,9 @@
     },
 
     // Additional Modern Settings
-    "verbatimModuleSyntax": true,  // Enforces explicit imports for types
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true    // Since we're using tsx for running/building
+    "noEmit": false    // Since we're using tsx for running/building
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
