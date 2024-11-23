@@ -1,8 +1,8 @@
 export type ChatMessage = {
-    chatId: string;
-    message: string;
-  };
-  
+  chatId: string;
+  message: string;
+};
+
 export type YoutubeAudioRequestData = {
   request_id: string;
   url: string;

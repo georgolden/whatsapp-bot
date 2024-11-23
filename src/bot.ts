@@ -33,7 +33,7 @@ const init = async () => {
   whatsappClient.start();
 };
 
-init().catch(error => {
+init().catch((error) => {
   console.error('Failed to initialize application:', error);
   process.exit(1);
 });

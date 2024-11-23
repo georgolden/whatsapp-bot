@@ -9,10 +9,10 @@ interface TranscriptionRecord {
 
 export class YoutubeRequestRepository {
   private pool: Pool;
-  
+
   constructor(connectionUrl: string) {
     this.pool = new Pool({ connectionString: connectionUrl });
-    this.initializeTable().catch(err => {
+    this.initializeTable().catch((err) => {
       console.error('Failed to initialize table:', err);
       process.exit(1);
     });
@@ -20,21 +20,6 @@ export class YoutubeRequestRepository {
 
   private async initializeTable(): Promise<void> {
     await this.pool.query(`
-      CREATE TABLE IF NOT EXISTS youtube_requests (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        url TEXT NOT NULL UNIQUE,
-        state TEXT NOT NULL CHECK (state IN ('PROCESSING', 'COMPLETED', 'FAILED')),
-        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE IF NOT EXISTS waiting_chats (
-        request_id UUID REFERENCES youtube_requests(id) ON DELETE CASCADE,
-        chat_id TEXT NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (request_id, chat_id)
-      );
-
       CREATE TABLE IF NOT EXISTS transcriptions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         url TEXT NOT NULL UNIQUE,
@@ -42,26 +27,29 @@ export class YoutubeRequestRepository {
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       );
       
-      CREATE INDEX IF NOT EXISTS idx_request_url ON youtube_requests(url);
-      CREATE INDEX IF NOT EXISTS idx_request_state ON youtube_requests(state);
       CREATE INDEX IF NOT EXISTS idx_transcriptions_url ON transcriptions(url);
     `);
   }
 
   async getTranscription(url: string): Promise<TranscriptionRecord | null> {
-    const { rows: [transcription] } = await this.pool.query<TranscriptionRecord>(
-      `SELECT * FROM transcriptions WHERE url = $1`,
-      [url]
-    );
+    const {
+      rows: [transcription],
+    } = await this.pool.query<TranscriptionRecord>(`SELECT * FROM transcriptions WHERE url = $1`, [
+      url,
+    ]);
     return transcription || null;
   }
 
   async saveTranscription(url: string, content: string): Promise<void> {
     await this.pool.query(
-      `INSERT INTO transcriptions (url, content)
-       VALUES ($1, $2)
-       ON CONFLICT (url) DO UPDATE SET content = EXCLUDED.content`,
-      [url, content]
+      `INSERT INTO transcriptions (url, content, created_at)
+       VALUES ($1, $2, CURRENT_TIMESTAMP)
+       ON CONFLICT (url) 
+       DO UPDATE SET 
+         content = EXCLUDED.content,
+         created_at = CURRENT_TIMESTAMP
+       WHERE transcriptions.content != EXCLUDED.content`,
+      [url, content],
     );
   }
 

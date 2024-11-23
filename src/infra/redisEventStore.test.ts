@@ -8,10 +8,7 @@ test('RedisEventStore Integration Tests', async (t) => {
   const streamName = 'test_stream';
 
   t.before(async () => {
-    eventStore = new RedisEventStore(
-      'test_service',
-      'redis://0.0.0.0:6379'
-    );
+    eventStore = new RedisEventStore('test_service', 'redis://0.0.0.0:6379');
     await eventStore.ensureConnection();
   });
 
@@ -22,7 +19,7 @@ test('RedisEventStore Integration Tests', async (t) => {
   await t.test('should process single event', async () => {
     const processed: Event[] = [];
     let resolveProcessing: () => void;
-    const processingDone = new Promise<void>(resolve => {
+    const processingDone = new Promise<void>((resolve) => {
       resolveProcessing = resolve;
     });
     // Get the read promise
@@ -33,7 +30,7 @@ test('RedisEventStore Integration Tests', async (t) => {
     const testEvent: Event = {
       name: 'test_stream',
       meta: null,
-      data: { title: 'Test Title', content: 'Test Content' }
+      data: { title: 'Test Title', content: 'Test Content' },
     };
 
     await eventStore.writeEvent(testEvent);
@@ -48,7 +45,7 @@ test('RedisEventStore Integration Tests', async (t) => {
     const totalEvents = 5;
 
     let resolveProcessing: () => void;
-    const processingDone = new Promise<void>(resolve => {
+    const processingDone = new Promise<void>((resolve) => {
       resolveProcessing = resolve;
     });
 
@@ -64,7 +61,7 @@ test('RedisEventStore Integration Tests', async (t) => {
       await eventStore.writeEvent({
         name: 'test_stream',
         meta: null,
-        data: { count: i }
+        data: { count: i },
       });
     }
 
@@ -72,26 +69,26 @@ test('RedisEventStore Integration Tests', async (t) => {
     await stop(); // Graceful shutdown of this stream
 
     assert.equal(processed.length, totalEvents);
-});
-
-await t.test('should handle handler errors', async () => {
-  await eventStore.writeEvent({
-    name: 'test_stream',
-    meta: null,
-    data: { test: 'data' }
   });
 
-  const { stream, stop } = await eventStore.processEvents(streamName, async () => {
-    throw new Error('Handler failed');
-  });
+  await t.test('should handle handler errors', async () => {
+    await eventStore.writeEvent({
+      name: 'test_stream',
+      meta: null,
+      data: { test: 'data' },
+    });
 
-  await assert.rejects(
-    async () => await stream,  // Changed this line to properly await the promise
-    {
-      name: 'Error',
-      message: 'Handler failed'
-    }
-  );
-  await stop();
-});
+    const { stream, stop } = await eventStore.processEvents(streamName, async () => {
+      throw new Error('Handler failed');
+    });
+
+    await assert.rejects(
+      async () => await stream, // Changed this line to properly await the promise
+      {
+        name: 'Error',
+        message: 'Handler failed',
+      },
+    );
+    await stop();
+  });
 });

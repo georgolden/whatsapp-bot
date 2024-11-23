@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Module Settings
-    "module": "CommonJS",        // or "NodeNext" for latest Node.js features
-    "moduleResolution": "Node",  // or "NodeNext"
+    "module": "CommonJS", // or "NodeNext" for latest Node.js features
+    "moduleResolution": "Node", // or "NodeNext"
     "target": "ES2022",
     "lib": ["ES2022"],
 
@@ -18,7 +18,7 @@
     // Output Settings
     "outDir": "./dist",
     "rootDir": "./src",
-    
+
     // Path Aliases
     "baseUrl": "./src",
     "paths": {
@@ -28,7 +28,7 @@
     // Additional Modern Settings
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false    // Since we're using tsx for running/building
+    "noEmit": false // Since we're using tsx for running/building
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

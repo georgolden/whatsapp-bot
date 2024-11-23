@@ -14,7 +14,7 @@ export class RedisEventStore implements EventStore {
 
   constructor(
     readonly serviceName: string,
-    redisUrl: string = 'redis://localhost:6379'
+    redisUrl: string = 'redis://localhost:6379',
   ) {
     this.redis = createClient({ url: redisUrl });
     this.consumerName = `${this.serviceName}-${process.pid}`;
@@ -30,7 +30,7 @@ export class RedisEventStore implements EventStore {
     await this.ensureConnection();
     try {
       await this.redis.xGroupCreate(streamName, this.serviceName, '0', {
-        MKSTREAM: true
+        MKSTREAM: true,
       });
     } catch (error) {
       if (!(error instanceof Error) || !error.message.includes('BUSYGROUP')) {
@@ -46,13 +46,16 @@ export class RedisEventStore implements EventStore {
       name: event.name,
       data: JSON.stringify(event.data),
       meta: JSON.stringify(event.meta),
-      timestamp: event.timestamp || new Date().toISOString()
+      timestamp: event.timestamp || new Date().toISOString(),
     };
 
     return await this.redis.xAdd(event.name, '*', eventData);
   }
 
-  async processEvents(streamName: string, handler: (event: Event) => Promise<any>): Promise<StreamControl> {
+  async processEvents(
+    streamName: string,
+    handler: (event: Event) => Promise<any>,
+  ): Promise<StreamControl> {
     await this.ensureConsumerGroup(streamName);
     this.running = true;
     const readPromise = this.startReading(streamName, handler);
@@ -62,17 +65,20 @@ export class RedisEventStore implements EventStore {
       stop: async () => {
         this.running = false;
         await readPromise.catch(() => {});
-      }
+      },
     };
   }
 
-  private async startReading(streamName: string, handler: (event: Event) => Promise<void>): Promise<void> {
+  private async startReading(
+    streamName: string,
+    handler: (event: Event) => Promise<void>,
+  ): Promise<void> {
     while (this.running) {
       const streams = await this.redis.xReadGroup(
         this.serviceName,
         this.consumerName,
         { key: streamName, id: '>' },
-        { COUNT: 1 }
+        { COUNT: 1 },
       );
 
       if (!streams?.length) {
@@ -90,7 +96,7 @@ export class RedisEventStore implements EventStore {
           name: message.name as string,
           data: JSON.parse(message.data as string),
           meta: JSON.parse(message.meta as string),
-          timestamp: message.timestamp as string
+          timestamp: message.timestamp as string,
         };
 
         await handler(event);

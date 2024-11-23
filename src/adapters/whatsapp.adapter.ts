@@ -29,7 +29,7 @@ export class WhatsAppClient extends EventEmitter {
       if (!!event.chats) {
         for (const chatId of event.chats) {
           this.client.sendMessage(chatId, event.data).catch(console.error);
-        } 
+        }
       }
     });
   }
@@ -47,7 +47,7 @@ export class WhatsAppClient extends EventEmitter {
     this.client.on('message', async (message: Message) => {
       const chatMessage = {
         chatId: message.from,
-        message: message.body
+        message: message.body,
       };
       this.emit('request', chatMessage);
     });
